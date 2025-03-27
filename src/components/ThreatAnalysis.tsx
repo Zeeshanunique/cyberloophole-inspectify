@@ -2,40 +2,93 @@
 import { useState } from "react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from "recharts";
 import { Shield, AlertTriangle, Activity } from "lucide-react";
-import { mockIncidents, incidentCategories, targetSectors } from "../utils/mockData";
+import { incidentCategories, targetSectors } from "../utils/mockData";
+import { useQuery } from "@tanstack/react-query";
+import { fetchIncidents } from "../utils/supabaseQueries";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const ThreatAnalysis = () => {
   const [activeTab, setActiveTab] = useState("categories");
 
+  // Fetch incidents
+  const { data: incidents = [], isLoading, error } = useQuery({
+    queryKey: ['incidents'],
+    queryFn: fetchIncidents,
+  });
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="py-16 bg-cybergray-50 dark:bg-cyberdark" id="analysis">
+        <div className="container mx-auto px-4">
+          <div className="max-w-4xl mx-auto">
+            <div className="text-center mb-12">
+              <Skeleton className="h-8 w-64 mx-auto mb-3" />
+              <Skeleton className="h-4 w-80 mx-auto" />
+            </div>
+            <div className="cyber-card mb-8">
+              <Skeleton className="h-12 w-full" />
+              <div className="p-6">
+                <Skeleton className="h-6 w-48 mb-6" />
+                <Skeleton className="h-[400px] w-full mb-6" />
+                <Skeleton className="h-16 w-full" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="py-16 bg-cybergray-50 dark:bg-cyberdark" id="analysis">
+        <div className="container mx-auto px-4 text-center">
+          <AlertTriangle className="h-12 w-12 text-red-500 mx-auto mb-4" />
+          <h2 className="text-2xl font-bold text-red-500 mb-2">Error Loading Analysis Data</h2>
+          <p className="text-cybergray-600 dark:text-cybergray-400 mb-4">
+            There was a problem loading the analysis data. Please try again later.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // Prepare data for charts
+  // Get unique categories and sectors from the data
+  const uniqueCategories = [...new Set(incidents.map(incident => incident.category))];
+  const uniqueSectors = [...new Set(incidents.map(incident => incident.targetSector || incident.target_sector))];
+
   // Data for the bar chart
-  const categoryData = incidentCategories.map((category) => ({
+  const categoryData = uniqueCategories.map((category) => ({
     name: category,
-    count: mockIncidents.filter((incident) => incident.category === category).length,
+    count: incidents.filter((incident) => incident.category === category).length,
   }));
 
   // Data for the pie chart
-  const sectorData = targetSectors.map((sector) => ({
+  const sectorData = uniqueSectors.map((sector) => ({
     name: sector,
-    value: mockIncidents.filter((incident) => incident.targetSector === sector).length,
+    value: incidents.filter((incident) => (incident.targetSector || incident.target_sector) === sector).length,
   }));
 
   // Data for severity distribution
   const severityData = [
     {
       name: "Critical",
-      value: mockIncidents.filter((incident) => incident.severity === "critical").length,
+      value: incidents.filter((incident) => incident.severity === "critical").length,
     },
     {
       name: "High",
-      value: mockIncidents.filter((incident) => incident.severity === "high").length,
+      value: incidents.filter((incident) => incident.severity === "high").length,
     },
     {
       name: "Medium",
-      value: mockIncidents.filter((incident) => incident.severity === "medium").length,
+      value: incidents.filter((incident) => incident.severity === "medium").length,
     },
     {
       name: "Low",
-      value: mockIncidents.filter((incident) => incident.severity === "low").length,
+      value: incidents.filter((incident) => incident.severity === "low").length,
     },
   ];
 

@@ -9,7 +9,77 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      cyber_incidents: {
+        Row: {
+          category: string
+          created_at: string
+          description: string
+          id: string
+          severity: string
+          status: string
+          target_sector: string
+          timestamp: string
+          title: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          description: string
+          id?: string
+          severity: string
+          status: string
+          target_sector: string
+          timestamp?: string
+          title: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string
+          id?: string
+          severity?: string
+          status?: string
+          target_sector?: string
+          timestamp?: string
+          title?: string
+        }
+        Relationships: []
+      }
+      preventive_measures: {
+        Row: {
+          created_at: string
+          description: string
+          id: string
+          incident_id: string
+          priority: string
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          id?: string
+          incident_id: string
+          priority: string
+          title: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          id?: string
+          incident_id?: string
+          priority?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "preventive_measures_incident_id_fkey"
+            columns: ["incident_id"]
+            isOneToOne: false
+            referencedRelation: "cyber_incidents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

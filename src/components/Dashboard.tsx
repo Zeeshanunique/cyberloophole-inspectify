@@ -3,12 +3,15 @@ import { useState, useEffect } from "react";
 import { AlertTriangle, Zap, Shield, Search, Eye, Filter } from "lucide-react";
 import SearchBar from "./SearchBar";
 import ThreatCard from "./ThreatCard";
-import { mockIncidents, CyberIncident, incidentCategories, targetSectors, severityLevels } from "../utils/mockData";
+import { incidentCategories, targetSectors, severityLevels } from "../utils/mockData";
 import IncidentDetails from "./IncidentDetails";
+import { fetchIncidents, CyberIncident } from "../utils/supabaseQueries";
+import { useQuery } from "@tanstack/react-query";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const Dashboard = () => {
   const [searchQuery, setSearchQuery] = useState("");
-  const [filteredIncidents, setFilteredIncidents] = useState<CyberIncident[]>(mockIncidents);
+  const [filteredIncidents, setFilteredIncidents] = useState<CyberIncident[]>([]);
   const [selectedIncident, setSelectedIncident] = useState<CyberIncident | null>(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [filterOpen, setFilterOpen] = useState(false);
@@ -18,38 +21,46 @@ const Dashboard = () => {
     severity: "",
   });
 
-  // Stats
-  const criticalIncidents = mockIncidents.filter((i) => i.severity === "critical").length;
-  const activeIncidents = mockIncidents.filter((i) => i.status === "active").length;
-  const resolvedIncidents = mockIncidents.filter((i) => i.status === "resolved").length;
+  // Fetch incidents using React Query
+  const { data: incidents = [], isLoading, error } = useQuery({
+    queryKey: ['incidents'],
+    queryFn: fetchIncidents,
+  });
 
   useEffect(() => {
-    // Filter based on search and filter criteria
-    let results = mockIncidents;
+    if (incidents) {
+      // Apply filters
+      let results = [...incidents];
 
-    if (searchQuery) {
-      results = results.filter((incident) =>
-        incident.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        incident.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        incident.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        incident.targetSector.toLowerCase().includes(searchQuery.toLowerCase())
-      );
+      if (searchQuery) {
+        results = results.filter((incident) =>
+          incident.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          incident.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          incident.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          incident.targetSector.toLowerCase().includes(searchQuery.toLowerCase())
+        );
+      }
+
+      if (filters.category) {
+        results = results.filter((incident) => incident.category === filters.category);
+      }
+
+      if (filters.sector) {
+        results = results.filter((incident) => incident.targetSector === filters.sector);
+      }
+
+      if (filters.severity) {
+        results = results.filter((incident) => incident.severity === filters.severity);
+      }
+
+      setFilteredIncidents(results);
     }
+  }, [searchQuery, filters, incidents]);
 
-    if (filters.category) {
-      results = results.filter((incident) => incident.category === filters.category);
-    }
-
-    if (filters.sector) {
-      results = results.filter((incident) => incident.targetSector === filters.sector);
-    }
-
-    if (filters.severity) {
-      results = results.filter((incident) => incident.severity === filters.severity);
-    }
-
-    setFilteredIncidents(results);
-  }, [searchQuery, filters]);
+  // Stats
+  const criticalIncidents = incidents.filter((i) => i.severity === "critical").length;
+  const activeIncidents = incidents.filter((i) => i.status === "active").length;
+  const resolvedIncidents = incidents.filter((i) => i.status === "resolved").length;
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
@@ -74,6 +85,48 @@ const Dashboard = () => {
     setSelectedIncident(incident);
     setShowDetailsModal(true);
   };
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="pt-24 pb-16" id="dashboard">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
+            <div>
+              <Skeleton className="h-8 w-64 mb-2" />
+              <Skeleton className="h-4 w-80" />
+            </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            {[1, 2, 3].map((i) => (
+              <Skeleton key={i} className="h-24 w-full rounded-lg" />
+            ))}
+          </div>
+          <Skeleton className="h-12 w-full mb-8" />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <Skeleton key={i} className="h-64 w-full rounded-lg" />
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="pt-24 pb-16" id="dashboard">
+        <div className="container mx-auto px-4 text-center">
+          <AlertTriangle className="h-12 w-12 text-red-500 mx-auto mb-4" />
+          <h2 className="text-2xl font-bold text-red-500 mb-2">Error Loading Data</h2>
+          <p className="text-cybergray-600 dark:text-cybergray-400 mb-4">
+            There was a problem loading the incident data. Please try again later.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="pt-24 pb-16" id="dashboard">

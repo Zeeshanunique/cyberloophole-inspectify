@@ -1,8 +1,11 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { X, AlertTriangle, User, Shield, ExternalLink, Clock, Target, Server, FileText } from "lucide-react";
-import { CyberIncident } from "../utils/mockData";
+import { CyberIncident } from "../utils/supabaseQueries";
 import PreventiveActions from "./PreventiveActions";
+import { fetchPreventiveMeasures } from "../utils/supabaseQueries";
+import { useQuery } from "@tanstack/react-query";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface IncidentDetailsProps {
   incident: CyberIncident;
@@ -11,6 +14,19 @@ interface IncidentDetailsProps {
 
 const IncidentDetails = ({ incident, onClose }: IncidentDetailsProps) => {
   const [activeTab, setActiveTab] = useState("overview");
+
+  // Fetch preventive measures for this incident
+  const { data: preventiveMeasures = [], isLoading } = useQuery({
+    queryKey: ['preventiveMeasures', incident.id],
+    queryFn: () => fetchPreventiveMeasures(incident.id),
+  });
+
+  // Enhance the incident with preventive measures once loaded
+  useEffect(() => {
+    if (preventiveMeasures.length > 0) {
+      incident.preventiveMeasures = preventiveMeasures.map(measure => measure.title);
+    }
+  }, [preventiveMeasures, incident]);
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);

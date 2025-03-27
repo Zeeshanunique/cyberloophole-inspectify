@@ -1,5 +1,5 @@
 
-import { CyberIncident } from "../utils/mockData";
+import { CyberIncident } from "../utils/supabaseQueries";
 import { ChevronRight, AlertTriangle, Clock, Shield } from "lucide-react";
 import { useState } from "react";
 
@@ -93,14 +93,14 @@ const ThreatCard = ({ incident, onClick }: ThreatCardProps) => {
             {incident.category}
           </span>
           <span className="inline-flex items-center px-2 py-1 bg-cybergray-100 dark:bg-cybergray-800 text-cybergray-800 dark:text-cybergray-200 rounded text-xs">
-            {incident.targetSector}
+            {incident.targetSector || incident.target_sector}
           </span>
         </div>
 
         <div className="mt-4 flex justify-between items-center">
           <div className="flex items-center text-xs text-cybergray-500">
             <Shield size={14} className="mr-1" />
-            <span>{incident.preventiveMeasures.length} Preventive measures</span>
+            <span>{incident.preventiveMeasures?.length || 0} Preventive measures</span>
           </div>
           <ChevronRight
             size={18}

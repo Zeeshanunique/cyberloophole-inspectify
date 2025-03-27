@@ -1,12 +1,20 @@
-
 import { Shield, CheckCircle, XCircle, AlertTriangle } from "lucide-react";
-import { CyberIncident } from "../utils/mockData";
+import { CyberIncident, PreventiveMeasure } from "../utils/supabaseQueries";
+import { useQuery } from "@tanstack/react-query";
+import { fetchPreventiveMeasures } from "../utils/supabaseQueries";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface PreventiveActionsProps {
   incident: CyberIncident;
 }
 
 const PreventiveActions = ({ incident }: PreventiveActionsProps) => {
+  // Fetch preventive measures for this incident
+  const { data: preventiveMeasures = [], isLoading } = useQuery({
+    queryKey: ['preventiveMeasures', incident.id],
+    queryFn: () => fetchPreventiveMeasures(incident.id),
+  });
+
   // Additional recommendations based on incident category
   const getAdditionalRecommendations = () => {
     switch (incident.category) {
@@ -79,6 +87,28 @@ const PreventiveActions = ({ incident }: PreventiveActionsProps) => {
 
   const additionalRecommendations = getAdditionalRecommendations();
 
+  if (isLoading) {
+    return (
+      <div className="animate-fade-in">
+        <div className="flex items-center mb-6">
+          <Skeleton className="h-10 w-10 rounded-full mr-4" />
+          <Skeleton className="h-6 w-64" />
+        </div>
+        <div className="cyber-card p-4 mb-6">
+          <Skeleton className="h-6 w-48 mb-4" />
+          <div className="space-y-3">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="flex gap-3">
+                <Skeleton className="h-5 w-5 rounded-full flex-shrink-0 mt-0.5" />
+                <Skeleton className="h-5 w-full" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="animate-fade-in">
       <div className="flex items-center mb-6">
@@ -92,14 +122,23 @@ const PreventiveActions = ({ incident }: PreventiveActionsProps) => {
 
       <div className="cyber-card p-4 mb-6">
         <h4 className="text-lg font-medium text-cybergray-900 dark:text-white mb-3">Specified Preventive Actions</h4>
-        <ul className="space-y-3">
-          {incident.preventiveMeasures.map((measure, index) => (
-            <li key={index} className="flex gap-3">
-              <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400 flex-shrink-0 mt-0.5" />
-              <span className="text-cybergray-700 dark:text-cybergray-300">{measure}</span>
-            </li>
-          ))}
-        </ul>
+        {preventiveMeasures.length === 0 ? (
+          <p className="text-cybergray-600 dark:text-cybergray-400">
+            No specific preventive measures have been recorded for this incident.
+          </p>
+        ) : (
+          <ul className="space-y-3">
+            {preventiveMeasures.map((measure) => (
+              <li key={measure.id} className="flex gap-3">
+                <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400 flex-shrink-0 mt-0.5" />
+                <div>
+                  <span className="text-cybergray-700 dark:text-cybergray-300 font-medium">{measure.title}</span>
+                  <p className="text-cybergray-600 dark:text-cybergray-400 text-sm mt-1">{measure.description}</p>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
 
       <div className="cyber-card p-4 mb-6">
