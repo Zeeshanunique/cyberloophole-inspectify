@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from "recharts";
 import { Shield, AlertTriangle, Activity } from "lucide-react";
@@ -58,7 +57,7 @@ const ThreatAnalysis = () => {
   // Prepare data for charts
   // Get unique categories and sectors from the data
   const uniqueCategories = [...new Set(incidents.map(incident => incident.category))];
-  const uniqueSectors = [...new Set(incidents.map(incident => incident.targetSector || incident.target_sector))];
+  const uniqueSectors = [...new Set(incidents.map(incident => incident.target_sector))];
 
   // Data for the bar chart
   const categoryData = uniqueCategories.map((category) => ({
@@ -69,7 +68,7 @@ const ThreatAnalysis = () => {
   // Data for the pie chart
   const sectorData = uniqueSectors.map((sector) => ({
     name: sector,
-    value: incidents.filter((incident) => (incident.targetSector || incident.target_sector) === sector).length,
+    value: incidents.filter((incident) => incident.target_sector === sector).length,
   }));
 
   // Data for severity distribution

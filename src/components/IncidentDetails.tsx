@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { X, AlertTriangle, User, Shield, ExternalLink, Clock, Target, Server, FileText } from "lucide-react";
 import { CyberIncident } from "../utils/supabaseQueries";
@@ -23,7 +22,7 @@ const IncidentDetails = ({ incident, onClose }: IncidentDetailsProps) => {
 
   // Enhance the incident with preventive measures once loaded
   useEffect(() => {
-    if (preventiveMeasures.length > 0) {
+    if (preventiveMeasures.length > 0 && incident.preventiveMeasures) {
       incident.preventiveMeasures = preventiveMeasures.map(measure => measure.title);
     }
   }, [preventiveMeasures, incident]);
@@ -102,7 +101,7 @@ const IncidentDetails = ({ incident, onClose }: IncidentDetailsProps) => {
             </div>
             <div className="flex items-center space-x-1.5 text-sm">
               <Target className="h-4 w-4 text-cybergray-500" />
-              <span className="text-cybergray-700 dark:text-cybergray-300">{incident.targetSector}</span>
+              <span className="text-cybergray-700 dark:text-cybergray-300">{incident.target_sector}</span>
             </div>
             <div className="flex items-center space-x-1.5 text-sm">
               <FileText className="h-4 w-4 text-cybergray-500" />
@@ -161,7 +160,7 @@ const IncidentDetails = ({ incident, onClose }: IncidentDetailsProps) => {
 
               <h3 className="text-lg font-medium text-cybergray-900 dark:text-white mb-3">Affected Systems</h3>
               <div className="flex flex-wrap gap-2 mb-6">
-                {incident.affectedSystems.map((system, index) => (
+                {incident.affected_systems && incident.affected_systems.map((system, index) => (
                   <div
                     key={index}
                     className="px-3 py-1.5 bg-cybergray-100 dark:bg-cybergray-800 text-cybergray-800 dark:text-cybergray-200 rounded-md text-sm flex items-center"
@@ -180,22 +179,22 @@ const IncidentDetails = ({ incident, onClose }: IncidentDetailsProps) => {
                       <User className="h-4 w-4 text-cybergray-500 mt-0.5 mr-2" />
                       <div>
                         <span className="block text-sm text-cybergray-500 dark:text-cybergray-400">Name</span>
-                        <span className="text-cybergray-900 dark:text-white">{incident.source.name}</span>
+                        <span className="text-cybergray-900 dark:text-white">{incident.source?.name}</span>
                       </div>
                     </div>
                     <div className="flex items-start mb-2">
                       <AlertTriangle className="h-4 w-4 text-cybergray-500 mt-0.5 mr-2" />
                       <div>
                         <span className="block text-sm text-cybergray-500 dark:text-cybergray-400">Type</span>
-                        <span className="text-cybergray-900 dark:text-white">{incident.source.type}</span>
+                        <span className="text-cybergray-900 dark:text-white">{incident.source?.type}</span>
                       </div>
                     </div>
-                    {incident.source.location && (
+                    {incident.source?.location && (
                       <div className="flex items-start">
                         <Target className="h-4 w-4 text-cybergray-500 mt-0.5 mr-2" />
                         <div>
                           <span className="block text-sm text-cybergray-500 dark:text-cybergray-400">Location</span>
-                          <span className="text-cybergray-900 dark:text-white">{incident.source.location}</span>
+                          <span className="text-cybergray-900 dark:text-white">{incident.source?.location}</span>
                         </div>
                       </div>
                     )}
@@ -237,22 +236,22 @@ const IncidentDetails = ({ incident, onClose }: IncidentDetailsProps) => {
                     <User className="h-6 w-6 text-red-600 dark:text-red-400" />
                   </div>
                   <div>
-                    <h3 className="text-xl font-semibold text-cybergray-900 dark:text-white">{incident.source.name}</h3>
-                    <p className="text-cybergray-600 dark:text-cybergray-400">{incident.source.type}</p>
+                    <h3 className="text-xl font-semibold text-cybergray-900 dark:text-white">{incident.source?.name}</h3>
+                    <p className="text-cybergray-600 dark:text-cybergray-400">{incident.source?.type}</p>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {incident.source.location && (
+                  {incident.source?.location && (
                     <div>
                       <h4 className="text-sm font-medium text-cybergray-500 dark:text-cybergray-400 uppercase mb-1">Location</h4>
-                      <p className="text-cybergray-900 dark:text-white">{incident.source.location}</p>
+                      <p className="text-cybergray-900 dark:text-white">{incident.source?.location}</p>
                     </div>
                   )}
-                  {incident.source.motivation && (
+                  {incident.source?.motivation && (
                     <div>
                       <h4 className="text-sm font-medium text-cybergray-500 dark:text-cybergray-400 uppercase mb-1">Motivation</h4>
-                      <p className="text-cybergray-900 dark:text-white">{incident.source.motivation}</p>
+                      <p className="text-cybergray-900 dark:text-white">{incident.source?.motivation}</p>
                     </div>
                   )}
                 </div>
@@ -262,19 +261,19 @@ const IncidentDetails = ({ incident, onClose }: IncidentDetailsProps) => {
               <div className="prose prose-cybergray dark:prose-invert max-w-none">
                 <p>
                   Based on the incident details and known threat intelligence, this incident is attributed to {" "}
-                  <strong>{incident.source.name}</strong>, a {incident.source.type.toLowerCase()} actor 
-                  {incident.source.location ? ` operating from ${incident.source.location}` : ""}.
+                  <strong>{incident.source?.name}</strong>, a {incident.source?.type?.toLowerCase()} actor 
+                  {incident.source?.location ? ` operating from ${incident.source.location}` : ""}.
                 </p>
                 
                 <p>
-                  {incident.source.type === "Group" && "This group has been active in targeting Indian organizations, with a focus on the " + incident.targetSector + " sector."}
-                  {incident.source.type === "Individual" && "This individual threat actor has been targeting vulnerabilities in " + incident.targetSector + " sector infrastructure."}
-                  {incident.source.type === "Nation-state" && "This nation-state actor has a history of sophisticated campaigns targeting critical infrastructure in the " + incident.targetSector + " sector."}
+                  {incident.source?.type === "Group" && "This group has been active in targeting Indian organizations, with a focus on the " + incident.target_sector + " sector."}
+                  {incident.source?.type === "Individual" && "This individual threat actor has been targeting vulnerabilities in " + incident.target_sector + " sector infrastructure."}
+                  {incident.source?.type === "Nation-state" && "This nation-state actor has a history of sophisticated campaigns targeting critical infrastructure in the " + incident.target_sector + " sector."}
                 </p>
                 
-                {incident.source.motivation && (
+                {incident.source?.motivation && (
                   <p>
-                    Their primary motivation appears to be <strong>{incident.source.motivation.toLowerCase()}</strong>, 
+                    Their primary motivation appears to be <strong>{incident.source?.motivation.toLowerCase()}</strong>, 
                     consistent with previous campaigns and the nature of the current attack.
                   </p>
                 )}
@@ -322,7 +321,7 @@ const IncidentDetails = ({ incident, onClose }: IncidentDetailsProps) => {
               <h3 className="text-lg font-medium text-cybergray-900 dark:text-white mb-3">Impact Analysis</h3>
               <div className="prose prose-cybergray dark:prose-invert max-w-none">
                 <p>
-                  This incident targeting the <strong>{incident.targetSector}</strong> sector through {incident.category.toLowerCase()} 
+                  This incident targeting the <strong>{incident.target_sector}</strong> sector through {incident.category.toLowerCase()} 
                   has resulted in significant impacts across multiple dimensions.
                 </p>
 
@@ -355,7 +354,7 @@ const IncidentDetails = ({ incident, onClose }: IncidentDetailsProps) => {
                 )}
 
                 <p>
-                  The affected systems include {incident.affectedSystems.join(", ")}, 
+                  The affected systems include {incident.affected_systems && incident.affected_systems.join(", ")}, 
                   suggesting a moderately broad impact on the organization's technology infrastructure.
                 </p>
                 

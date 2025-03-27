@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { AlertTriangle, Zap, Shield, Search, Eye, Filter } from "lucide-react";
 import SearchBar from "./SearchBar";
@@ -21,7 +20,6 @@ const Dashboard = () => {
     severity: "",
   });
 
-  // Fetch incidents using React Query
   const { data: incidents = [], isLoading, error } = useQuery({
     queryKey: ['incidents'],
     queryFn: fetchIncidents,
@@ -29,7 +27,6 @@ const Dashboard = () => {
 
   useEffect(() => {
     if (incidents) {
-      // Apply filters
       let results = [...incidents];
 
       if (searchQuery) {
@@ -37,7 +34,7 @@ const Dashboard = () => {
           incident.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
           incident.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
           incident.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          incident.targetSector.toLowerCase().includes(searchQuery.toLowerCase())
+          incident.target_sector.toLowerCase().includes(searchQuery.toLowerCase())
         );
       }
 
@@ -46,7 +43,7 @@ const Dashboard = () => {
       }
 
       if (filters.sector) {
-        results = results.filter((incident) => incident.targetSector === filters.sector);
+        results = results.filter((incident) => incident.target_sector === filters.sector);
       }
 
       if (filters.severity) {
@@ -57,7 +54,6 @@ const Dashboard = () => {
     }
   }, [searchQuery, filters, incidents]);
 
-  // Stats
   const criticalIncidents = incidents.filter((i) => i.severity === "critical").length;
   const activeIncidents = incidents.filter((i) => i.status === "active").length;
   const resolvedIncidents = incidents.filter((i) => i.status === "resolved").length;
@@ -86,7 +82,6 @@ const Dashboard = () => {
     setShowDetailsModal(true);
   };
 
-  // Loading state
   if (isLoading) {
     return (
       <div className="pt-24 pb-16" id="dashboard">
@@ -113,7 +108,6 @@ const Dashboard = () => {
     );
   }
 
-  // Error state
   if (error) {
     return (
       <div className="pt-24 pb-16" id="dashboard">

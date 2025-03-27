@@ -24,6 +24,7 @@ export interface CyberIncident {
     reputational?: string;
     dataLoss?: string;
   };
+  preventiveMeasures?: string[];
 }
 
 export interface PreventiveMeasure {
@@ -32,6 +33,7 @@ export interface PreventiveMeasure {
   title: string;
   description: string;
   priority: "low" | "medium" | "high";
+  created_at?: string;
 }
 
 export const fetchIncidents = async (): Promise<CyberIncident[]> => {
@@ -52,12 +54,12 @@ export const fetchIncidents = async (): Promise<CyberIncident[]> => {
       title: incident.title,
       description: incident.description,
       timestamp: incident.timestamp,
-      severity: incident.severity,
-      status: incident.status,
+      severity: incident.severity as "low" | "medium" | "high" | "critical",
+      status: incident.status as "active" | "mitigated" | "investigating" | "resolved",
       category: incident.category,
-      targetSector: incident.target_sector,
+      target_sector: incident.target_sector,
       // For backward compatibility with the mockData structure
-      affectedSystems: ["System A", "System B"], // Default placeholder values
+      affected_systems: ["System A", "System B"], // Default placeholder values
       source: {
         name: "Unknown Source",
         type: incident.category,
@@ -87,7 +89,14 @@ export const fetchPreventiveMeasures = async (incidentId: string): Promise<Preve
       return [];
     }
 
-    return data;
+    return data.map(measure => ({
+      id: measure.id,
+      incident_id: measure.incident_id,
+      title: measure.title,
+      description: measure.description,
+      priority: measure.priority as "low" | "medium" | "high",
+      created_at: measure.created_at
+    }));
   } catch (error) {
     console.error("Error in fetchPreventiveMeasures:", error);
     toast.error("Failed to load preventive measures");

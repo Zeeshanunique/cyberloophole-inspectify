@@ -1,4 +1,3 @@
-
 import { CyberIncident } from "../utils/supabaseQueries";
 import { ChevronRight, AlertTriangle, Clock, Shield } from "lucide-react";
 import { useState } from "react";
@@ -93,7 +92,7 @@ const ThreatCard = ({ incident, onClick }: ThreatCardProps) => {
             {incident.category}
           </span>
           <span className="inline-flex items-center px-2 py-1 bg-cybergray-100 dark:bg-cybergray-800 text-cybergray-800 dark:text-cybergray-200 rounded text-xs">
-            {incident.targetSector || incident.target_sector}
+            {incident.target_sector}
           </span>
         </div>
 
