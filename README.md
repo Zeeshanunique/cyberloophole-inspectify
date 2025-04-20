@@ -1,69 +1,183 @@
-# Welcome to your Lovable project
+# CyberLoophole Inspectify
 
-## Project info
+## Project Overview
 
-**URL**: https://lovable.dev/projects/b2125e3c-43da-4873-ae18-f9efda19fa71
+CyberLoophole Inspectify is a comprehensive cyber threat intelligence platform designed specifically for monitoring, analyzing, and responding to cyber incidents affecting Indian information infrastructure. The platform provides real-time analytics, visualizations, and insights to help cybersecurity professionals, organizations, and government agencies protect critical systems.
 
-## How can I edit this code?
+## Features
 
-There are several ways of editing your application.
+### 🛡️ Comprehensive Incident Monitoring
+- Real-time tracking of cyber incidents
+- Detailed incident reporting with severity classification
+- Historical incident database with search capabilities
 
-**Use Lovable**
+### 📊 Advanced Analytics
+- Sector-specific incident distribution
+- Attack vector analysis
+- Severity classification statistics
+- Temporal trend analysis
+- Threat actor tracking
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/b2125e3c-43da-4873-ae18-f9efda19fa71) and start prompting.
+### 🔍 Threat Intelligence
+- Strategic recommendations based on data patterns
+- Vulnerability assessments
+- Sector vulnerability matrix
+- Automated data collection from various sources
 
-Changes made via Lovable will be committed automatically to this repo.
+### 📱 User-Friendly Interface
+- Responsive design for all devices
+- Intuitive dashboard for quick insights
+- Detailed visualization of complex data
+- Dark and light mode support
 
-**Use your preferred IDE**
+## Screenshots
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### Landing Page
+Modern landing page with real-time incident statistics and sector information.
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+### Dashboard
+Comprehensive overview of recent incidents, threat analysis, and key security metrics.
 
-Follow these steps:
+### Analytics
+In-depth data visualization with sector analysis, attack vectors, and trend reporting.
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+### Incidents Management
+Detailed incident tracking and management with severity classification.
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+## Technologies Used
 
-# Step 3: Install the necessary dependencies.
-npm i
+This project is built with:
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+- **Frontend Framework**: React with TypeScript
+- **Build Tool**: Vite
+- **UI Components**: shadcn-ui
+- **Styling**: Tailwind CSS
+- **Data Visualization**: Recharts
+- **Authentication**: Firebase Authentication
+- **Database**: Firebase Firestore
+- **Deployment**: Firebase Hosting
+
+## Installation
+
+1. Clone the repository:
+```bash
+git clone <repository-url>
+cd cyberloophole-inspectify
+```
+
+2. Install dependencies:
+```bash
+npm install
+```
+
+3. Create a `.env` file in the root directory with your Firebase configuration:
+```
+VITE_FIREBASE_API_KEY=your-api-key
+VITE_FIREBASE_AUTH_DOMAIN=your-auth-domain
+VITE_FIREBASE_PROJECT_ID=your-project-id
+VITE_FIREBASE_STORAGE_BUCKET=your-storage-bucket
+VITE_FIREBASE_MESSAGING_SENDER_ID=your-messaging-sender-id
+VITE_FIREBASE_APP_ID=your-app-id
+```
+
+4. Start the development server:
+```bash
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+## Project Structure
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+```
+cyberloophole-inspectify/
+├── public/               # Static assets
+│   ├── components/       # Reusable UI components
+│   │   └── ui/           # Base UI components from shadcn/ui
+│   ├── contexts/         # React context providers
+│   │   └── AuthContext.tsx  # Authentication context
+│   ├── pages/            # Application pages
+│   │   ├── Analytics.tsx    # Data visualization and insights
+│   │   ├── Dashboard.tsx    # Main dashboard view
+│   │   ├── Incidents.tsx    # Incident listing and management
+│   │   └── Landing.tsx      # Public landing page
+│   ├── services/         # Service layers for data handling
+│   │   ├── AnalyticsService.ts   # Analytics data processing
+│   │   └── DataService.ts        # Database operations
+│   ├── App.tsx           # Main application component
+│   └── main.tsx          # Application entry point
+├── index.html            # HTML entry point
+└── package.json          # Project dependencies and scripts
+```
 
-**Use GitHub Codespaces**
+## Key Pages
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+- **Landing Page**: Public-facing information about the platform
+- **Dashboard**: Overview of recent incidents and key metrics
+- **Incidents**: Comprehensive listing of all cyber incidents with filtering
+- **Analytics**: In-depth data analysis and visualizations
+- **Admin**: For administrators to manage the platform (restricted access)
 
-## What technologies are used for this project?
+## Data Model
 
-This project is built with .
+- **Incidents**: Cyber incidents with details like severity, sector, date, etc.
+- **Threats**: Known threat actors and their activities
+- **Vulnerabilities**: Identified vulnerabilities in different sectors
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## Future Enhancements
 
-## How can I deploy this project?
+- Integration with external threat intelligence feeds
+- Advanced machine learning for pattern recognition
+- Mobile application for on-the-go monitoring
+- API for third-party integrations
+- Advanced notification system
 
-Simply open [Lovable](https://lovable.dev/projects/b2125e3c-43da-4873-ae18-f9efda19fa71) and click on Share -> Publish.
+## Development Workflow
 
-## I want to use a custom domain - is that possible?
+### Local Development
 
-We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
+```bash
+# Start development server
+npm run dev
+
+# Build for production
+npm run build
+
+# Preview production build
+npm run preview
+```
+
+### Testing
+
+```bash
+# Run tests
+npm test
+```
+
+## Deployment
+
+The application can be deployed to Firebase Hosting:
+
+```bash
+# Install Firebase CLI
+npm install -g firebase-tools
+
+# Login to Firebase
+firebase login
+
+# Initialize Firebase
+firebase init
+
+# Deploy to Firebase
+firebase deploy
+```
+
+## Contributors
+
+- Team CyberLoophole Inspectify
+
+## License
+
+This project is proprietary and confidential.
+
+---
+
+© 2023 CyberLoophole Inspectify. All rights reserved.
