@@ -50,13 +50,13 @@ const ChartContainer = React.forwardRef<
         data-chart={chartId}
         ref={ref}
         className={cn(
-          "flex aspect-video justify-center text-xs [&_.recharts-cartesian-axis-tick_text]:fill-muted-foreground [&_.recharts-cartesian-grid_line[stroke='#ccc']]:stroke-border/50 [&_.recharts-curve.recharts-tooltip-cursor]:stroke-border [&_.recharts-dot[stroke='#fff']]:stroke-transparent [&_.recharts-layer]:outline-none [&_.recharts-polar-grid_[stroke='#ccc']]:stroke-border [&_.recharts-radial-bar-background-sector]:fill-muted [&_.recharts-rectangle.recharts-tooltip-cursor]:fill-muted [&_.recharts-reference-line_[stroke='#ccc']]:stroke-border [&_.recharts-sector[stroke='#fff']]:stroke-transparent [&_.recharts-sector]:outline-none [&_.recharts-surface]:outline-none",
+          "flex w-full h-full justify-center text-xs [&_.recharts-cartesian-axis-tick_text]:fill-muted-foreground [&_.recharts-cartesian-grid_line[stroke='#ccc']]:stroke-border/50 [&_.recharts-curve.recharts-tooltip-cursor]:stroke-border [&_.recharts-dot[stroke='#fff']]:stroke-transparent [&_.recharts-layer]:outline-none [&_.recharts-polar-grid_[stroke='#ccc']]:stroke-border [&_.recharts-radial-bar-background-sector]:fill-muted [&_.recharts-rectangle.recharts-tooltip-cursor]:fill-muted [&_.recharts-reference-line_[stroke='#ccc']]:stroke-border [&_.recharts-sector[stroke='#fff']]:stroke-transparent [&_.recharts-sector]:outline-none [&_.recharts-surface]:outline-none",
           className
         )}
         {...props}
       >
         <ChartStyle id={chartId} config={config} />
-        <RechartsPrimitive.ResponsiveContainer>
+        <RechartsPrimitive.ResponsiveContainer width="100%" height="100%" aspect={undefined}>
           {children}
         </RechartsPrimitive.ResponsiveContainer>
       </div>
@@ -353,6 +353,240 @@ function getPayloadConfigFromPayload(
     : config[key as keyof typeof config]
 }
 
+// New Chart Components
+interface ChartProps {
+  data: any
+  className?: string
+  config?: ChartConfig
+}
+
+const LineChart: React.FC<ChartProps> = ({ data, className, config = {} }) => {
+  // Process the data format to be compatible with Recharts
+  const chartData = React.useMemo(() => {
+    if (!data) return [];
+    
+    // If it's already in the right format, return it
+    if (!data.labels && Array.isArray(data)) {
+      return data;
+    }
+
+    // For chart data that comes from Dashboard.tsx (format with labels and datasets)
+    if (data.labels && data.datasets) {
+      return data.labels.map((label: string, index: number) => {
+        const result: Record<string, any> = { name: label };
+        
+        // Add a property for each dataset
+        data.datasets.forEach((dataset: any, datasetIndex: number) => {
+          const key = dataset.label || `dataset${datasetIndex}`;
+          result[key] = dataset.data[index];
+        });
+        
+        return result;
+      });
+    }
+    
+    return [];
+  }, [data]);
+
+  return (
+    <ChartContainer className={cn("w-full h-full", className)} config={config}>
+      <RechartsPrimitive.LineChart data={chartData} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
+        <RechartsPrimitive.CartesianGrid strokeDasharray="3 3" />
+        <RechartsPrimitive.XAxis dataKey="name" />
+        <RechartsPrimitive.YAxis />
+        <ChartTooltip />
+        
+        {data.datasets ? (
+          data.datasets.map((dataset: any, index: number) => (
+            <RechartsPrimitive.Line
+              key={index}
+              type="monotone"
+              dataKey={dataset.label || `dataset${index}`}
+              stroke={dataset.borderColor || `hsl(${index * 45}, 70%, 50%)`}
+              strokeWidth={2}
+              dot={{ fill: dataset.borderColor || `hsl(${index * 45}, 70%, 50%)` }}
+            />
+          ))
+        ) : (
+          <RechartsPrimitive.Line
+            type="monotone"
+            dataKey={Object.keys(chartData[0] || {}).find(key => key !== "name") || "value"}
+            stroke="#8884d8"
+            strokeWidth={2}
+          />
+        )}
+      </RechartsPrimitive.LineChart>
+    </ChartContainer>
+  );
+};
+
+const BarChart: React.FC<ChartProps> = ({ data, className, config = {} }) => {
+  // Process the data format to be compatible with Recharts
+  const chartData = React.useMemo(() => {
+    if (!data) return [];
+    
+    // If it's already in the right format, return it
+    if (!data.labels && Array.isArray(data)) {
+      return data;
+    }
+
+    // For chart data that comes from Dashboard.tsx (format with labels and datasets)
+    if (data.labels && data.datasets) {
+      return data.labels.map((label: string, index: number) => {
+        const result: Record<string, any> = { name: label };
+        
+        // Add a property for each dataset
+        data.datasets.forEach((dataset: any, datasetIndex: number) => {
+          const key = dataset.label || `dataset${datasetIndex}`;
+          result[key] = dataset.data[index];
+        });
+        
+        return result;
+      });
+    }
+    
+    return [];
+  }, [data]);
+
+  return (
+    <ChartContainer className={cn("w-full h-full", className)} config={config}>
+      <RechartsPrimitive.BarChart data={chartData} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
+        <RechartsPrimitive.CartesianGrid strokeDasharray="3 3" />
+        <RechartsPrimitive.XAxis dataKey="name" />
+        <RechartsPrimitive.YAxis />
+        <ChartTooltip />
+        
+        {data.datasets ? 
+          data.datasets.map((dataset: any, index: number) => (
+            <RechartsPrimitive.Bar 
+              key={index}
+              dataKey={dataset.label || `dataset${index}`} 
+              fill={dataset.backgroundColor?.[0] || `hsl(${index * 45}, 70%, 50%)`} 
+            />
+          )) : (
+            <RechartsPrimitive.Bar 
+              dataKey={Object.keys(chartData[0] || {}).find(key => key !== "name") || "value"} 
+              fill="#8884d8" 
+            />
+          )
+        }
+      </RechartsPrimitive.BarChart>
+    </ChartContainer>
+  );
+};
+
+const PieChart: React.FC<ChartProps> = ({ data, className, config = {} }) => {
+  // Process the data format to be compatible with Recharts
+  const pieData = React.useMemo(() => {
+    if (!data) return [];
+    
+    // If it's already in the right format, return it
+    if (!data.labels && Array.isArray(data)) {
+      return data;
+    }
+
+    // For chart data that comes from Dashboard.tsx (format with labels and datasets)
+    if (data.labels && data.datasets && data.datasets[0]) {
+      return data.labels.map((label: string, index: number) => ({
+        name: label,
+        value: data.datasets[0].data[index],
+        fill: data.datasets[0].backgroundColor?.[index] || `hsl(${index * 45}, 70%, 50%)`,
+      }));
+    }
+    
+    return [];
+  }, [data]);
+
+  return (
+    <ChartContainer className={cn("w-full h-full", className)} config={config}>
+      <RechartsPrimitive.PieChart margin={{ top: 5, right: 5, bottom: 5, left: 5 }}>
+        <ChartTooltip />
+        <RechartsPrimitive.Pie
+          data={pieData}
+          dataKey="value"
+          nameKey="name"
+          cx="50%"
+          cy="50%"
+          outerRadius={80}
+          label
+          isAnimationActive={true}
+        >
+          {pieData.map((entry: any, index: number) => (
+            <RechartsPrimitive.Cell 
+              key={`cell-${index}`} 
+              fill={entry.fill || `hsl(${index * 45}, 70%, 50%)`} 
+            />
+          ))}
+        </RechartsPrimitive.Pie>
+        <RechartsPrimitive.Legend />
+      </RechartsPrimitive.PieChart>
+    </ChartContainer>
+  );
+};
+
+const RadarChart: React.FC<ChartProps> = ({ data, className, config = {} }) => {
+  // Process the data format to be compatible with Recharts
+  const chartData = React.useMemo(() => {
+    if (!data) return [];
+    
+    // If it's already in the right format, return it
+    if (!data.labels && Array.isArray(data)) {
+      return data;
+    }
+
+    // For chart data that comes from Dashboard.tsx (format with labels and datasets)
+    if (data.labels && data.datasets) {
+      return data.labels.map((label: string, index: number) => {
+        const result: Record<string, any> = { name: label };
+        
+        // Add a property for each dataset
+        data.datasets.forEach((dataset: any, datasetIndex: number) => {
+          const key = dataset.label || `dataset${datasetIndex}`;
+          result[key] = dataset.data[index];
+        });
+        
+        return result;
+      });
+    }
+    
+    return [];
+  }, [data]);
+
+  return (
+    <ChartContainer className={cn("w-full h-full", className)} config={config}>
+      <RechartsPrimitive.RadarChart data={chartData} margin={{ top: 5, right: 20, bottom: 5, left: 5 }}>
+        <RechartsPrimitive.PolarGrid />
+        <RechartsPrimitive.PolarAngleAxis dataKey="name" />
+        <RechartsPrimitive.PolarRadiusAxis />
+        <ChartTooltip />
+        
+        {data.datasets ? 
+          data.datasets.map((dataset: any, index: number) => (
+            <RechartsPrimitive.Radar
+              key={index}
+              name={dataset.label || `Dataset ${index}`}
+              dataKey={dataset.label || `dataset${index}`}
+              stroke={dataset.borderColor || `hsl(${index * 45}, 70%, 50%)`}
+              fill={dataset.backgroundColor || `hsl(${index * 45}, 70%, 20%, 0.3)`}
+              isAnimationActive={true}
+            />
+          )) : (
+            <RechartsPrimitive.Radar
+              name="Data"
+              dataKey={Object.keys(chartData[0] || {}).find(key => key !== "name") || "value"}
+              stroke="#8884d8"
+              fill="#8884d8"
+              fillOpacity={0.6}
+              isAnimationActive={true}
+            />
+          )
+        }
+        <RechartsPrimitive.Legend />
+      </RechartsPrimitive.RadarChart>
+    </ChartContainer>
+  );
+};
+
 export {
   ChartContainer,
   ChartTooltip,
@@ -360,4 +594,8 @@ export {
   ChartLegend,
   ChartLegendContent,
   ChartStyle,
+  LineChart,
+  BarChart,
+  PieChart,
+  RadarChart,
 }

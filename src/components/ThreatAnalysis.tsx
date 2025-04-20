@@ -94,7 +94,21 @@ const ThreatAnalysis = () => {
   const COLORS = ["#F44336", "#FF9800", "#FFC107", "#4CAF50"];
 
   // Custom tooltip
-  const CustomTooltip = ({ active, payload, label }: any) => {
+  interface TooltipProps {
+    active?: boolean;
+    payload?: Array<{
+      name: string;
+      value: number;
+      payload?: {
+        name: string;
+        count?: number;
+        value?: number;
+      };
+    }>;
+    label?: string;
+  }
+  
+  const CustomTooltip = ({ active, payload, label }: TooltipProps) => {
     if (active && payload && payload.length) {
       return (
         <div className="bg-white dark:bg-cybergray-800 p-3 border border-cybergray-200 dark:border-cybergray-700 rounded shadow-md">

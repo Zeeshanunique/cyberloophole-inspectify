@@ -63,6 +63,12 @@ const Header = () => {
             >
               Prevention
             </a>
+            <a
+              href="/admin"
+              className="text-cybergray-700 dark:text-cybergray-200 hover:text-cyberblue-500 dark:hover:text-cyberblue-400 transition-colors duration-200"
+            >
+              Admin
+            </a>
           </nav>
 
           <div className="flex items-center gap-3">
@@ -114,6 +120,13 @@ const Header = () => {
               onClick={() => setMobileMenuOpen(false)}
             >
               Prevention
+            </a>
+            <a
+              href="/admin"
+              className="text-cybergray-700 dark:text-cybergray-200 hover:text-cyberblue-500 dark:hover:text-cyberblue-400 transition-colors duration-200 py-2"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Admin
             </a>
           </nav>
         </div>
