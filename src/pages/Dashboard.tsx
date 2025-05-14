@@ -11,7 +11,10 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 import { BarChart, LineChart, PieChart } from '@/components/ui/chart';
 import DbSeeder from '../components/DbSeeder';
-import { PlusCircle } from 'lucide-react';
+import { PlusCircle, Globe, Scan, ShieldAlert } from 'lucide-react';
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
+import CybercrimeDetectionForm from '../components/WebLinkAnalysisForm';
+import CybercrimeDetectionResults from '../components/WebLinkAnalysisResults';
 
 // Types for our data
 interface Incident {
@@ -39,7 +42,9 @@ const Dashboard = () => {
   const [attackVectors, setAttackVectors] = useState<{[key: string]: number}>({});
   const [isAdmin, setIsAdmin] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
-  
+  const [showCybercrimeDetectionDialog, setShowCybercrimeDetectionDialog] = useState(false);
+  const [webLinkAnalysisRefreshKey, setWebLinkAnalysisRefreshKey] = useState(0);
+
   useEffect(() => {
     // Check if the current user is an admin
     if (currentUser?.email) {
@@ -47,7 +52,7 @@ const Dashboard = () => {
       setIsAdmin(adminEmails.includes(currentUser.email));
     }
   }, [currentUser]);
-  
+
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
@@ -134,17 +139,25 @@ const Dashboard = () => {
     
     fetchDashboardData();
   }, [refreshKey]);
-  
+
   // Function to handle adding data
   const handleAddData = () => {
     navigate('/incidents/add');
   };
-  
-  // Function to refresh dashboard data
+
   const refreshData = () => {
-    setRefreshKey(prev => prev + 1);
+    setRefreshKey(prevKey => prevKey + 1);
   };
-  
+
+  const handleOpenCybercrimeDetection = () => {
+    setShowCybercrimeDetectionDialog(true);
+  };
+
+  const handleCybercrimeDetectionComplete = () => {
+    setShowCybercrimeDetectionDialog(false);
+    setWebLinkAnalysisRefreshKey(prev => prev + 1);
+  };
+
   // Prepare chart data
   const sectorChartData = {
     labels: Object.keys(incidentsBySector),
@@ -162,7 +175,7 @@ const Dashboard = () => {
       },
     ],
   };
-  
+
   const severityChartData = {
     labels: Object.keys(incidentsBySeverity).map(s => s.charAt(0).toUpperCase() + s.slice(1)),
     datasets: [
@@ -178,7 +191,7 @@ const Dashboard = () => {
       },
     ],
   };
-  
+
   const trendChartData = {
     labels: incidentTrend.map(item => item.date),
     datasets: [
@@ -191,7 +204,7 @@ const Dashboard = () => {
       },
     ],
   };
-  
+
   // New chart for attack vectors
   const attackVectorsData = {
     labels: Object.keys(attackVectors).slice(0, 5), // Show top 5 vectors
@@ -245,10 +258,17 @@ const Dashboard = () => {
                 Refresh Data
               </Button>
               <Button 
-                onClick={handleAddData}
-                className="bg-cyberblue-500 hover:bg-cyberblue-600 text-white flex items-center gap-2"
+                onClick={handleOpenCybercrimeDetection}
+                className="bg-cyberblue-600 hover:bg-cyberblue-700 text-white"
               >
-                <PlusCircle size={16} />
+                <Scan className="mr-2 h-4 w-4" />
+                Cybercrime Detect
+              </Button>
+              <Button 
+                onClick={handleAddData}
+                className="bg-cyberblue-500 hover:bg-cyberblue-600 text-white"
+              >
+                <PlusCircle className="mr-2 h-4 w-4" />
                 Add Incident
               </Button>
             </div>
@@ -413,6 +433,43 @@ const Dashboard = () => {
             </Card>
           </div>
           
+          {/* Cybercrime Detection Dialog */}
+          <Dialog open={showCybercrimeDetectionDialog} onOpenChange={setShowCybercrimeDetectionDialog}>
+            <DialogContent className="max-w-xl">
+              <DialogTitle className="sr-only">Cybercrime Detection</DialogTitle>
+              <CybercrimeDetectionForm 
+                onAnalysisComplete={handleCybercrimeDetectionComplete} 
+                onCancel={() => setShowCybercrimeDetectionDialog(false)} 
+              />
+            </DialogContent>
+          </Dialog>
+
+          {/* Cybercrime Detection Results Section */}
+          <Card className="mt-6">
+            <CardHeader>
+              <div className="flex justify-between items-center">
+                <CardTitle className="flex items-center">
+                  <ShieldAlert className="mr-2 h-5 w-5 text-cyberblue-500" />
+                  Cybercrime Detection Results
+                </CardTitle>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setWebLinkAnalysisRefreshKey(prev => prev + 1)}
+                  className="text-cyberblue-500"
+                >
+                  Refresh
+                </Button>
+              </div>
+              <CardDescription>
+                AI-powered detection of cybercrime in websites and social media
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <CybercrimeDetectionResults refreshTrigger={webLinkAnalysisRefreshKey} />
+            </CardContent>
+          </Card>
+
           {/* Recent Incidents */}
           <Card>
             <CardHeader>
